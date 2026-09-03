@@ -13,11 +13,12 @@ The Supabase **publishable/anon key is intended for browser use** when RLS is co
 1. Create a free project at Supabase.
 2. Open **SQL Editor**.
 3. Paste and run `supabase-setup.sql`.
-4. In **Authentication > Users**, create a test resident account with an email and password.
-5. In your project API settings, copy:
+4. In **Authentication > URL Configuration**, set your **Site URL** and add the same address under **Redirect URLs**. For this portal use `https://sdecesare.github.io/s/`.
+5. In **Authentication > Users**, you can either create a test resident with an email/password or use **Send invitation**. Invited users are taken to the portal and prompted to choose a password.
+6. In your project API settings, copy:
    - Project URL
    - Publishable key (or legacy anon key)
-6. Put those two values in `config.js`.
+7. Put those two values in `config.js`.
 
 ## 2. Add content
 
@@ -61,6 +62,7 @@ Create one Supabase Auth user per resident/household. When somebody leaves, remo
 ## What this starter does
 
 - Email/password sign in
+- Invitation links with first-time password setup
 - Persists a logged-in session in the browser
 - Sign out
 - Protected notices from Supabase

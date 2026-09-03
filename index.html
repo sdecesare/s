@@ -29,6 +29,27 @@
       </div>
     </section>
 
+
+    <section id="password-view" class="login-shell hidden">
+      <div class="login-card">
+        <div class="brand-mark">RA</div>
+        <p class="eyebrow">RESIDENT INVITATION</p>
+        <h1>Set your password</h1>
+        <p class="muted">Choose a password for your residents portal account.</p>
+
+        <form id="password-form">
+          <label for="new-password">New password</label>
+          <input id="new-password" name="new-password" type="password" autocomplete="new-password" minlength="8" required />
+
+          <label for="confirm-password">Confirm password</label>
+          <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" minlength="8" required />
+
+          <button id="password-button" type="submit">Set password</button>
+          <p id="password-message" class="message" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
     <section id="portal-view" class="portal hidden">
       <header class="topbar">
         <div>

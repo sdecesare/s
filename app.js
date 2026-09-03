@@ -3,6 +3,10 @@ const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_K
 
 const loginView = document.getElementById('login-view');
 const portalView = document.getElementById('portal-view');
+const passwordView = document.getElementById('password-view');
+const passwordForm = document.getElementById('password-form');
+const passwordButton = document.getElementById('password-button');
+const passwordMessage = document.getElementById('password-message');
 const loginForm = document.getElementById('login-form');
 const loginButton = document.getElementById('login-button');
 const loginMessage = document.getElementById('login-message');
@@ -10,11 +14,25 @@ const signedInAs = document.getElementById('signed-in-as');
 
 function showLogin() {
   loginView.classList.remove('hidden');
+  passwordView.classList.add('hidden');
   portalView.classList.add('hidden');
+}
+
+function showPasswordSetup() {
+  loginView.classList.add('hidden');
+  passwordView.classList.remove('hidden');
+  portalView.classList.add('hidden');
+}
+
+function isInviteLink() {
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  const query = new URLSearchParams(window.location.search);
+  return hash.get('type') === 'invite' || query.get('type') === 'invite';
 }
 
 async function showPortal(user) {
   loginView.classList.add('hidden');
+  passwordView.classList.add('hidden');
   portalView.classList.remove('hidden');
   signedInAs.textContent = user.email || 'Signed in';
   await Promise.all([loadNotices(), loadDocuments(), loadContacts()]);
@@ -35,9 +53,44 @@ loginForm.addEventListener('submit', async (event) => {
   loginButton.textContent = 'Sign in';
 
   if (error) {
-    loginMessage.textContent = 'Unable to sign in. Please check your details.';
+    loginMessage.textContent = error.message || 'Unable to sign in. Please check your details.';
     return;
   }
+  await showPortal(data.user);
+});
+
+
+passwordForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  passwordMessage.textContent = '';
+
+  const password = document.getElementById('new-password').value;
+  const confirmPassword = document.getElementById('confirm-password').value;
+
+  if (password.length < 8) {
+    passwordMessage.textContent = 'Please use at least 8 characters.';
+    return;
+  }
+  if (password !== confirmPassword) {
+    passwordMessage.textContent = 'The passwords do not match.';
+    return;
+  }
+
+  passwordButton.disabled = true;
+  passwordButton.textContent = 'Saving…';
+
+  const { data, error } = await client.auth.updateUser({ password });
+
+  passwordButton.disabled = false;
+  passwordButton.textContent = 'Set password';
+
+  if (error) {
+    passwordMessage.textContent = error.message || 'Unable to set your password.';
+    return;
+  }
+
+  // Remove invitation tokens from the address bar once the password has been set.
+  history.replaceState({}, document.title, window.location.pathname);
   await showPortal(data.user);
 });
 
@@ -128,6 +181,19 @@ function escapeHtml(value = '') {
   if (SUPABASE_URL.includes('YOUR-PROJECT') || SUPABASE_PUBLISHABLE_KEY.includes('YOUR-PUBLISHABLE')) {
     loginMessage.textContent = 'Setup required: add your Supabase URL and publishable key to config.js.';
   }
-  const { data: { session } } = await client.auth.getSession();
+  const arrivedFromInvite = isInviteLink();
+  const { data: { session }, error } = await client.auth.getSession();
+
+  if (error) {
+    loginMessage.textContent = error.message;
+    showLogin();
+    return;
+  }
+
+  if (arrivedFromInvite && session?.user) {
+    showPasswordSetup();
+    return;
+  }
+
   if (session?.user) await showPortal(session.user); else showLogin();
 })();
