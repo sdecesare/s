@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Residents Association Portal</title>
+  <meta name="description" content="Private information portal for residents." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main>
+    <section id="login-view" class="login-shell">
+      <div class="login-card">
+        <div class="brand-mark">RA</div>
+        <p class="eyebrow">PRIVATE RESIDENTS AREA</p>
+        <h1>Residents Association</h1>
+        <p class="muted">Sign in to view notices, documents and association information.</p>
+
+        <form id="login-form">
+          <label for="email">Email address</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+
+          <button id="login-button" type="submit">Sign in</button>
+          <p id="login-message" class="message" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <section id="portal-view" class="portal hidden">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">RESIDENTS ASSOCIATION</p>
+          <h1>Residents Portal</h1>
+        </div>
+        <div class="account-area">
+          <span id="signed-in-as"></span>
+          <button id="logout-button" class="secondary">Sign out</button>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="Portal sections">
+        <button class="tab active" data-section="home">Home</button>
+        <button class="tab" data-section="notices">Notices</button>
+        <button class="tab" data-section="documents">Documents</button>
+        <button class="tab" data-section="contacts">Contacts</button>
+      </nav>
+
+      <div class="content-wrap">
+        <section id="section-home" class="portal-section">
+          <div class="hero-card">
+            <p class="eyebrow">WELCOME</p>
+            <h2>Association information in one place</h2>
+            <p>Use this private area for current notices, meeting documents and committee information.</p>
+          </div>
+          <div class="grid">
+            <article class="card"><h3>Latest notices</h3><p id="home-notice-count">Loading…</p></article>
+            <article class="card"><h3>Documents</h3><p id="home-document-count">Loading…</p></article>
+            <article class="card"><h3>Need help?</h3><p>Use the Contacts tab for committee details.</p></article>
+          </div>
+        </section>
+
+        <section id="section-notices" class="portal-section hidden">
+          <div class="section-heading"><h2>Notices</h2><p>Updates published by the association.</p></div>
+          <div id="notices-list" class="stack"><p class="muted">Loading notices…</p></div>
+        </section>
+
+        <section id="section-documents" class="portal-section hidden">
+          <div class="section-heading"><h2>Documents</h2><p>Private files available to signed-in residents.</p></div>
+          <div id="documents-list" class="stack"><p class="muted">Loading documents…</p></div>
+        </section>
+
+        <section id="section-contacts" class="portal-section hidden">
+          <div class="section-heading"><h2>Committee contacts</h2><p>Contact details stored in the protected database.</p></div>
+          <div id="contacts-list" class="stack"><p class="muted">Loading contacts…</p></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
