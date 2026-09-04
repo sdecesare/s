@@ -16,19 +16,35 @@
         <h1>Residents Association</h1>
         <p class="muted">Sign in to view notices, documents and association information.</p>
 
+        <div class="auth-switch" role="tablist" aria-label="Account options">
+          <button id="show-login" class="auth-switch-button active" type="button">Sign in</button>
+          <button id="show-signup" class="auth-switch-button" type="button">Create account</button>
+        </div>
+
         <form id="login-form">
           <label for="email">Email address</label>
           <input id="email" name="email" type="email" autocomplete="email" required />
-
           <label for="password">Password</label>
           <input id="password" name="password" type="password" autocomplete="current-password" required />
-
           <button id="login-button" type="submit">Sign in</button>
           <p id="login-message" class="message" aria-live="polite"></p>
         </form>
+
+        <form id="signup-form" class="hidden">
+          <label for="signup-name">Your name</label>
+          <input id="signup-name" name="signup-name" type="text" autocomplete="name" maxlength="120" required />
+          <label for="signup-email">Email address</label>
+          <input id="signup-email" name="signup-email" type="email" autocomplete="email" required />
+          <label for="signup-password">Password</label>
+          <input id="signup-password" name="signup-password" type="password" autocomplete="new-password" minlength="8" required />
+          <label for="signup-confirm">Confirm password</label>
+          <input id="signup-confirm" name="signup-confirm" type="password" autocomplete="new-password" minlength="8" required />
+          <button id="signup-button" type="submit">Create account</button>
+          <p class="form-hint">New accounts must be approved before residents-only content is available.</p>
+          <p id="signup-message" class="message" aria-live="polite"></p>
+        </form>
       </div>
     </section>
-
 
     <section id="password-view" class="login-shell hidden">
       <div class="login-card">
@@ -36,17 +52,24 @@
         <p class="eyebrow">RESIDENT INVITATION</p>
         <h1>Set your password</h1>
         <p class="muted">Choose a password for your residents portal account.</p>
-
         <form id="password-form">
           <label for="new-password">New password</label>
-          <input id="new-password" name="new-password" type="password" autocomplete="new-password" minlength="8" required />
-
+          <input id="new-password" type="password" autocomplete="new-password" minlength="8" required />
           <label for="confirm-password">Confirm password</label>
-          <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" minlength="8" required />
-
+          <input id="confirm-password" type="password" autocomplete="new-password" minlength="8" required />
           <button id="password-button" type="submit">Set password</button>
           <p id="password-message" class="message" aria-live="polite"></p>
         </form>
+      </div>
+    </section>
+
+    <section id="pending-view" class="login-shell hidden">
+      <div class="login-card">
+        <div class="brand-mark">RA</div>
+        <p class="eyebrow">ACCOUNT PENDING</p>
+        <h1>Awaiting approval</h1>
+        <p id="pending-copy" class="muted">Your account has been created but must be approved by an association approver before you can enter the residents area.</p>
+        <button id="pending-logout" type="button">Sign out</button>
       </div>
     </section>
 
@@ -57,8 +80,12 @@
           <h1>Residents Portal</h1>
         </div>
         <div class="account-area">
-          <span id="signed-in-as"></span>
-          <button id="logout-button" class="secondary">Sign out</button>
+          <div class="account-copy">
+            <strong id="signed-in-name"></strong>
+            <span id="signed-in-as"></span>
+          </div>
+          <span id="role-badge" class="role-badge"></span>
+          <button id="logout-button" class="secondary" type="button">Sign out</button>
         </div>
       </header>
 
@@ -67,35 +94,67 @@
         <button class="tab" data-section="notices">Notices</button>
         <button class="tab" data-section="documents">Documents</button>
         <button class="tab" data-section="contacts">Contacts</button>
+        <button id="approvals-tab" class="tab hidden" data-section="approvals">Approvals <span id="pending-count" class="count-pill">0</span></button>
       </nav>
 
       <div class="content-wrap">
+        <div id="portal-message" class="banner hidden" aria-live="polite"></div>
+
         <section id="section-home" class="portal-section">
           <div class="hero-card">
             <p class="eyebrow">WELCOME</p>
             <h2>Association information in one place</h2>
-            <p>Use this private area for current notices, meeting documents and committee information.</p>
+            <p>View updates, share notices and exchange residents-only documents securely.</p>
           </div>
           <div class="grid">
             <article class="card"><h3>Latest notices</h3><p id="home-notice-count">Loading…</p></article>
             <article class="card"><h3>Documents</h3><p id="home-document-count">Loading…</p></article>
-            <article class="card"><h3>Need help?</h3><p>Use the Contacts tab for committee details.</p></article>
+            <article class="card"><h3>Your access</h3><p id="home-role">Approved resident</p></article>
           </div>
         </section>
 
         <section id="section-notices" class="portal-section hidden">
-          <div class="section-heading"><h2>Notices</h2><p>Updates published by the association.</p></div>
+          <div class="section-heading"><h2>Notices</h2><p>All approved residents can publish notices. You may delete your own; approvers may delete any notice.</p></div>
+          <details class="composer" open>
+            <summary>Add a notice</summary>
+            <form id="notice-form" class="inline-form">
+              <label for="notice-title">Title</label>
+              <input id="notice-title" maxlength="160" required />
+              <label for="notice-body">Notice</label>
+              <textarea id="notice-body" rows="5" maxlength="5000" required></textarea>
+              <button id="notice-submit" type="submit">Publish notice</button>
+              <p id="notice-message" class="message" aria-live="polite"></p>
+            </form>
+          </details>
           <div id="notices-list" class="stack"><p class="muted">Loading notices…</p></div>
         </section>
 
         <section id="section-documents" class="portal-section hidden">
-          <div class="section-heading"><h2>Documents</h2><p>Private files available to signed-in residents.</p></div>
+          <div class="section-heading"><h2>Documents</h2><p>Upload files for residents. Approved residents can download all documents and delete their own uploads.</p></div>
+          <details class="composer" open>
+            <summary>Upload a document</summary>
+            <form id="document-form" class="inline-form">
+              <label for="document-title">Title</label>
+              <input id="document-title" maxlength="160" required />
+              <label for="document-description">Description <span class="muted">(optional)</span></label>
+              <textarea id="document-description" rows="3" maxlength="1000"></textarea>
+              <label for="document-file">File</label>
+              <input id="document-file" type="file" required />
+              <button id="document-submit" type="submit">Upload document</button>
+              <p id="document-message" class="message" aria-live="polite"></p>
+            </form>
+          </details>
           <div id="documents-list" class="stack"><p class="muted">Loading documents…</p></div>
         </section>
 
         <section id="section-contacts" class="portal-section hidden">
           <div class="section-heading"><h2>Committee contacts</h2><p>Contact details stored in the protected database.</p></div>
           <div id="contacts-list" class="stack"><p class="muted">Loading contacts…</p></div>
+        </section>
+
+        <section id="section-approvals" class="portal-section hidden">
+          <div class="section-heading"><h2>User approvals</h2><p>Approve legitimate residents or reject accounts that should not have access.</p></div>
+          <div id="approvals-list" class="stack"><p class="muted">Loading pending accounts…</p></div>
         </section>
       </div>
     </section>
