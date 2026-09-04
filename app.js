@@ -74,13 +74,8 @@ $('signup-form').addEventListener('submit', async (event) => {
   });
   button.disabled = false; button.textContent = 'Create account';
   if (error) return message.textContent = error.message;
-  message.className = 'message success-message';
-  if (data.session) {
-    message.textContent = 'Account created. Your access is awaiting approval.';
-    await routeAuthenticatedUser(data.user);
-  } else {
-    message.textContent = 'Account created. Check your email to confirm your address, then sign in. Approval is also required.';
-  }
+  // Take successful registrations to a dedicated confirmation page.
+  window.location.href = 'signup-success.html';
 });
 
 $('password-form').addEventListener('submit', async (event) => {
