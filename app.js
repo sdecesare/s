@@ -67,7 +67,10 @@ $('signup-form').addEventListener('submit', async (event) => {
   const { data, error } = await client.auth.signUp({
     email: $('signup-email').value.trim(),
     password,
-    options: { data: { display_name: $('signup-name').value.trim() } }
+    options: {
+      emailRedirectTo: 'https://sdecesare.github.io/s/',
+      data: { display_name: $('signup-name').value.trim() }
+    }
   });
   button.disabled = false; button.textContent = 'Create account';
   if (error) return message.textContent = error.message;
