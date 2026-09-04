@@ -263,15 +263,21 @@ async function loadContacts() {
     : '<p class="muted">No committee contacts have been added yet.</p>';
 }
 
-$('admin-user-form').addEventListener('submit', async (event) => {
-  event.preventDefault();
+$('admin-user-submit').addEventListener('click', async () => {
   if (!isApprover()) return;
 
+  const form = $('admin-user-form');
   const message = $('admin-user-message');
   message.className = 'message';
   message.textContent = '';
 
+  if (!form.reportValidity()) return;
+
+  const displayNameValue = $('admin-user-name').value.trim();
+  const emailValue = $('admin-user-email').value.trim();
   const password = $('admin-user-password').value;
+  const requestedRole = $('admin-user-role').value;
+
   if (password.length < 8) {
     message.textContent = 'Please use an initial password of at least 8 characters.';
     return;
@@ -281,40 +287,50 @@ $('admin-user-form').addEventListener('submit', async (event) => {
   button.disabled = true;
   button.textContent = 'Creating user…';
 
-  const { data, error } = await client.functions.invoke('admin-create-user', {
-    body: {
-      displayName: $('admin-user-name').value.trim(),
-      email: $('admin-user-email').value.trim(),
-      password,
-      role: $('admin-user-role').value
-    }
-  });
-
-  button.disabled = false;
-  button.textContent = 'Create user';
-
-  if (error) {
-    let detail = error.message;
-    try {
-      if (error.context && typeof error.context.json === 'function') {
-        const body = await error.context.json();
-        detail = body?.error || body?.message || detail;
+  try {
+    const { data, error } = await client.functions.invoke('admin-create-user', {
+      body: {
+        displayName: displayNameValue,
+        email: emailValue,
+        password,
+        role: requestedRole
       }
-    } catch (_) {}
-    message.textContent = detail;
-    return;
-  }
+    });
 
-  if (data?.error) {
-    message.textContent = data.error;
-    return;
-  }
+    if (error) {
+      let detail = error.message || 'The user could not be created.';
+      try {
+        if (error.context && typeof error.context.json === 'function') {
+          const body = await error.context.json();
+          detail = body?.error || body?.message || detail;
+        }
+      } catch (_) {}
+      message.textContent = detail;
+      return;
+    }
 
-  const roleLabel = data?.role === 'approver' ? 'Admin' : 'Resident';
-  message.classList.add('success-text');
-  message.textContent = `${roleLabel} account created for ${data?.email || $('admin-user-email').value.trim()}.`;
-  event.target.reset();
-  await loadProfiles();
+    if (data?.error) {
+      message.textContent = data.error;
+      return;
+    }
+
+    const roleLabel = data?.role === 'approver' ? 'Admin' : 'Resident';
+    message.classList.add('success-text');
+    message.textContent = `${roleLabel} account created for ${data?.email || emailValue}.`;
+    form.reset();
+    await loadProfiles();
+    await loadApprovals();
+
+    // Keep the Administration page visible after creating the account.
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.section === 'approvals'));
+    document.querySelectorAll('.portal-section').forEach(section => section.classList.add('hidden'));
+    $('section-approvals').classList.remove('hidden');
+  } catch (err) {
+    message.textContent = err?.message || 'Unexpected error while creating the user.';
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Create user';
+  }
 });
 
 async function loadPendingCount() {
