@@ -99,3 +99,17 @@ button.success:hover { background: #11613e; }
 .success-steps p { margin: 8px 0; }
 .button-link { display: inline-block; margin-top: 22px; padding: 12px 18px; border-radius: 10px; background: var(--blue); color: white; text-decoration: none; font-weight: 750; }
 .button-link:hover { background: var(--blue-dark); }
+
+/* Administration form additions */
+.inline-form select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.78rem 0.85rem;
+  font: inherit;
+  background: #fff;
+  color: var(--text);
+}
+.compact-heading { margin-top: 1.75rem; }
+.success-text { color: #166534; }

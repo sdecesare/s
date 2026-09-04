@@ -143,8 +143,8 @@ async function showPortal() {
   hideAllViews(); portalView.classList.remove('hidden');
   $('signed-in-name').textContent = displayName(currentProfile);
   $('signed-in-as').textContent = currentUser.email || '';
-  $('role-badge').textContent = isApprover() ? 'Approver' : 'Resident';
-  $('home-role').textContent = isApprover() ? 'Approver — resident access plus administration' : 'Approved resident';
+  $('role-badge').textContent = isApprover() ? 'Admin' : 'Resident';
+  $('home-role').textContent = isApprover() ? 'Admin — resident access plus administration' : 'Approved resident';
   $('approvals-tab').classList.toggle('hidden', !isApprover());
   await loadProfiles();
   await Promise.all([loadNotices(), loadDocuments(), loadContacts(), isApprover() ? loadPendingCount() : Promise.resolve()]);
@@ -262,6 +262,60 @@ async function loadContacts() {
     ${item.email ? `<p><a href="mailto:${encodeURIComponent(item.email)}">${escapeHtml(item.email)}</a></p>` : ''}</article>`).join('')
     : '<p class="muted">No committee contacts have been added yet.</p>';
 }
+
+$('admin-user-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  if (!isApprover()) return;
+
+  const message = $('admin-user-message');
+  message.className = 'message';
+  message.textContent = '';
+
+  const password = $('admin-user-password').value;
+  if (password.length < 8) {
+    message.textContent = 'Please use an initial password of at least 8 characters.';
+    return;
+  }
+
+  const button = $('admin-user-submit');
+  button.disabled = true;
+  button.textContent = 'Creating user…';
+
+  const { data, error } = await client.functions.invoke('admin-create-user', {
+    body: {
+      displayName: $('admin-user-name').value.trim(),
+      email: $('admin-user-email').value.trim(),
+      password,
+      role: $('admin-user-role').value
+    }
+  });
+
+  button.disabled = false;
+  button.textContent = 'Create user';
+
+  if (error) {
+    let detail = error.message;
+    try {
+      if (error.context && typeof error.context.json === 'function') {
+        const body = await error.context.json();
+        detail = body?.error || body?.message || detail;
+      }
+    } catch (_) {}
+    message.textContent = detail;
+    return;
+  }
+
+  if (data?.error) {
+    message.textContent = data.error;
+    return;
+  }
+
+  const roleLabel = data?.role === 'approver' ? 'Admin' : 'Resident';
+  message.classList.add('success-text');
+  message.textContent = `${roleLabel} account created for ${data?.email || $('admin-user-email').value.trim()}.`;
+  event.target.reset();
+  await loadProfiles();
+});
 
 async function loadPendingCount() {
   const { count } = await client.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'pending');

@@ -94,7 +94,7 @@
         <button class="tab" data-section="notices">Notices</button>
         <button class="tab" data-section="documents">Documents</button>
         <button class="tab" data-section="contacts">Contacts</button>
-        <button id="approvals-tab" class="tab hidden" data-section="approvals">Approvals <span id="pending-count" class="count-pill">0</span></button>
+        <button id="approvals-tab" class="tab hidden" data-section="approvals">Administration <span id="pending-count" class="count-pill">0</span></button>
       </nav>
 
       <div class="content-wrap">
@@ -153,7 +153,33 @@
         </section>
 
         <section id="section-approvals" class="portal-section hidden">
-          <div class="section-heading"><h2>User approvals</h2><p>Approve legitimate residents or reject accounts that should not have access.</p></div>
+          <div class="section-heading"><h2>Administration</h2><p>Create resident or admin accounts and review self-registered accounts awaiting approval.</p></div>
+
+          <details class="composer" open>
+            <summary>Add a user manually</summary>
+            <form id="admin-user-form" class="inline-form">
+              <label for="admin-user-name">Name</label>
+              <input id="admin-user-name" maxlength="120" required />
+
+              <label for="admin-user-email">Email</label>
+              <input id="admin-user-email" type="email" autocomplete="off" required />
+
+              <label for="admin-user-role">Account type</label>
+              <select id="admin-user-role" required>
+                <option value="resident">Normal / Resident</option>
+                <option value="admin">Admin</option>
+              </select>
+
+              <label for="admin-user-password">Initial password</label>
+              <input id="admin-user-password" type="password" minlength="8" autocomplete="new-password" required />
+              <p class="form-hint">The account is created as confirmed and approved, so no confirmation email is required. Give the initial password to the user securely.</p>
+
+              <button id="admin-user-submit" type="submit">Create user</button>
+              <p id="admin-user-message" class="message" aria-live="polite"></p>
+            </form>
+          </details>
+
+          <div class="section-heading compact-heading"><h2>Pending self-signups</h2><p>Approve legitimate residents or reject accounts that should not have access.</p></div>
           <div id="approvals-list" class="stack"><p class="muted">Loading pending accounts…</p></div>
         </section>
       </div>
