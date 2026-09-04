@@ -314,6 +314,13 @@ $('admin-user-submit').addEventListener('click', async () => {
       return;
     }
 
+    // Never report success for an empty/preflight response. The Edge Function
+    // must explicitly confirm the new Auth user's ID.
+    if (!data?.ok || !data?.id || !data?.email) {
+      message.textContent = 'The server did not confirm that the user was created. Please check the Edge Function logs.';
+      return;
+    }
+
     const roleLabel = data?.role === 'approver' ? 'Admin' : 'Resident';
     message.classList.add('success-text');
     message.textContent = `${roleLabel} account created for ${data?.email || emailValue}.`;
